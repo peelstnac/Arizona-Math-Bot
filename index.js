@@ -7,6 +7,10 @@ const client = new Discord.Client();
 
 function latex (statement, callback) {
   // prepare the statement
+  statement = statement.replace(/&lt;/g, '<');
+  statement = statement.replace(/&gt;/g, '>');
+  statement = statement.replace(/&le;/g, '\le');
+  statement = statement.replace(/&ge;/g, '\ge');
   statement = '\\documentclass{article} \\begin{document} \\pagenumbering{gobble}' + statement + '\\end{document}';
   exec('python latex.py ' + '"' + statement + '"', (err, stdout, stderr) => {
     if (err) return callback(err, false);
