@@ -3,7 +3,6 @@ import requests
 import shutil
 from PIL import Image
 
-
 HOST = 'https://rtex.probablyaweb.site'
 
 LATEX = r'{}'.format(sys.argv[1])

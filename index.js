@@ -2,6 +2,8 @@
 const { exec } = require('child_process');
 const fs = require('fs');
 const cheerio = require('cheerio');
+const Discord = require('discord.js');
+const client = new Discord.Client();
 
 function latex (statement, callback) {
   // prepare the statement
@@ -25,7 +27,7 @@ function jbmo (year, problem, callback) {
     var $ = cheerio.load(data);
     const lYear = 2019;
     $('.cmty-category-cell-bottom').each((y, b) => { // year, box
-      if (lYear - y === year) {
+      if (lYear - y == year) {
         $(b).find('.cmty-view-posts-item').each((i, e) => { // index, element
           // match problem number
           var number;
@@ -58,7 +60,41 @@ function jbmo (year, problem, callback) {
   });
 }
 
-jbmo(2013, 4, (err, statement) => {
+client.on('ready', () => {
+  console.log('bot is ready');
+});
+
+client.on('message', (message) => {
+  if (message.author.bot) return false;
+  var prefix = message.content.split(' ')[0];
+  var args = message.content.split(' ').slice(1,);
+  if (prefix !== '+') return false;
+  // implicit casting below
+  if (args[0].toLowerCase() === 'jbmo' && args.length >= 3) {
+    if (1997 <= args[1] && args[1] <= 2019 && 1 <= args[2] && args[2] <= 4) {
+      jbmo(args[1], args[2], (err, statement) => {
+        if (err) {
+          console.log(err);
+          return false;
+        }
+        latex(statement, (err, status) => {
+          if (err) {
+            console.log(err);
+            return false;
+          }
+          if (status) {
+            message.channel.send({
+              files: ['out.png']
+            });
+          }
+        });
+      });
+    }
+  }
+});
+
+fs.readFile('settings.json', (err, data) => {
   if (err) throw err;
-  latex(statement);
+  const token = JSON.parse(data)['token'];
+  client.login(token);
 });
