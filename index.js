@@ -71,6 +71,12 @@ client.on('message', (message) => {
   if (prefix !== '+') return false;
   // implicit casting below
   if (args[0].toLowerCase() === 'jbmo' && args.length >= 3) {
+    if (args[1].toLowerCase() === 'r') {
+      args[1] = 1997 + Math.floor(Math.random() * (2019 - 1997 + 1));
+    }
+    if (args[2].toLowerCase() === 'r') {
+      args[2] = Math.floor(Math.random() * 4 + 1);
+    }
     if (1997 <= args[1] && args[1] <= 2019 && 1 <= args[2] && args[2] <= 4) {
       jbmo(args[1], args[2], (err, statement) => {
         if (err) {
@@ -83,6 +89,7 @@ client.on('message', (message) => {
             return false;
           }
           if (status) {
+            message.channel.send('JBMO ' + args[1] + ' problem ' + args[2] + '.');
             message.channel.send({
               files: ['out.png']
             });
