@@ -1,8 +1,22 @@
 'use strict';
+const { exec } = require('child_process');
 const fs = require('fs');
 const cheerio = require('cheerio');
 
-function jbmo(year, problem, callback) {
+function latex (statement, callback) {
+  // prepare the statement
+  statement = '\\documentclass{article} \\begin{document} \\pagenumbering{gobble}' + statement + '\\end{document}';
+  exec('python latex.py ' + '"' + statement + '"', (err, stdout, stderr) => {
+    if (err) return callback(err, false);
+    if (stderr) throw callback(stderr, false);
+    if (stdout === 'done') {
+      return callback(null, true);
+    }
+    return callback(null, false);
+  });
+}
+
+function jbmo (year, problem, callback) {
   // load the html
   fs.readFile('Junior Balkan MO.html', 'utf8', (err, data) => {
     if (err) {
@@ -12,7 +26,6 @@ function jbmo(year, problem, callback) {
     const lYear = 2019;
     $('.cmty-category-cell-bottom').each((y, b) => { // year, box
       if (lYear - y === year) {
-        console.log(year);
         $(b).find('.cmty-view-posts-item').each((i, e) => { // index, element
           // match problem number
           var number;
@@ -45,6 +58,7 @@ function jbmo(year, problem, callback) {
   });
 }
 
-jbmo(2015, 4, (err, latex) => {
-  console.log(latex);
+jbmo(2013, 4, (err, statement) => {
+  if (err) throw err;
+  latex(statement);
 });
